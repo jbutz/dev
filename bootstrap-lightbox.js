@@ -1,8 +1,7 @@
 /*
 /* =========================================================
- * bootstrap-lightbox.js v0.3
+ * bootstrap-lightbox.js v0.4
  *
- * HEAVILY based off bootstrap-modal.js v2.1.1
  * =========================================================
  * Copyright 2012 Jason Butz
  *
@@ -29,30 +28,39 @@
  /* LIGHTBOX CLASS DEFINITION
  * ====================== */
 
-var Lightbox = function ( element, options ) {
-		this.options = options;
-		this.$element = $(element)
-			.delegate('[data-dismiss="lightbox"]', 'click.dismiss.lightbox', $.proxy(this.hide, this));
-		//this.options.remote && this.$element.find('.lightbox-body').load(this.options.remote)
-	//
+var Lightbox = function ( element, options )
+{
 	var that = this;
-	// Clone the element
-	that.$clone = that.$element.filter(':first').clone().css(
-	{
-		'position': 'absolute',
-		'top'     : -2000,
-		'display' : 'block',
-		'visibility': 'visible',
-		'opacity': 100
-	}).removeClass('fade').appendTo('body');
-	that.$h = that.$clone.height();
-	that.$w = that.$clone.width();
+
+	this.options = options;
+
+	// This registers events that will always fire based on given selectors with a given context
+	this.$element = $(element).delegate('[data-dismiss="lightbox"]', 'click.dismiss.lightbox', $.proxy(this.hide, this));
+	
+	// Clone the element and append it to the body
+	//  this allows us to get an idea for the size of the lightbox
+	that.$clone = that.$element.filter(':first').clone()
+		.css(
+		{
+			'position': 'absolute',
+			'top'     : -2000,
+			'display' : 'block',
+			'visibility': 'visible',
+			'opacity': 100
+		})
+		.removeClass('fade')
+		.appendTo('body');
+
+	that.h = that.$clone.height();
+	that.w = that.$clone.width();
 	that.$clone.remove();
 	
+	// try and center the element based on the
+	//  height and width retrieved from the clone
 	that.$element.css({
 		"position": "fixed",
-		"left": ( $(window).width()  / 2 ) - ( that.$w / 2 ),
-		"top":  ( $(window).height() / 2 ) - ( that.$h / 2 )
+		"left": ( $(window).width()  / 2 ) - ( that.w / 2 ),
+		"top":  ( $(window).height() / 2 ) - ( that.h / 2 )
 	});	
 	//
 };
@@ -72,7 +80,7 @@ Lightbox.prototype = {
 
 		if (this.isShown || e.isDefaultPrevented()) return;
 
-		$('body').addClass('lightbox-open');
+		//$('body').addClass('lightbox-open');
 
 		this.isShown = true;
 
@@ -98,19 +106,19 @@ Lightbox.prototype = {
 
 			that.$element
 				.addClass('in')
-				.attr('aria-hidden', false)
-				.focus();
+				.attr('aria-hidden', false);
 
 			that.enforceFocus();
-
+			debugger
 			transition ? 
-				that.$element.one($.support.transition.end, function () { that.$element.trigger('shown'); }) :
-				that.$element.trigger('shown');
-			});
-			that.$element.find('.lightbox-content').find('img').load(function()
-			{
-				that.centerImage();
-			});
+				that.$element.one($.support.transition.end, function () { that.$element.focus().trigger('shown'); }) :
+				that.$element.focus().trigger('shown');
+		});
+		that.$element.find('.lightbox-content').find('img').load(function()
+		{
+			console.log('Loading Image');
+			that.centerImage();
+		});
 	},
 	hide: function ( e )
 	{
@@ -138,11 +146,12 @@ Lightbox.prototype = {
 
 		$.support.transition && this.$element.hasClass('fade') ?
 			this.hideWithTransition() :
-			this.hideModal();
+			this.hideLightbox();
 	},
 	enforceFocus: function ()
 	{
 		var that = this;
+
 		$(document).on('focusin.lightbox', function (e)
 		{
 			if (that.$element[0] !== e.target && !that.$element.has(e.target).length)
@@ -154,11 +163,11 @@ Lightbox.prototype = {
 	escape: function ()
 	{
 		var that = this;
-
 		if (this.isShown && this.options.keyboard)
 		{
 			this.$element.on('keyup.dismiss.lightbox', function ( e )
 			{
+				console.log('Firing Esc Dismiss');
 				e.which == 27 && that.hide();
 			});
 		}
@@ -173,16 +182,16 @@ Lightbox.prototype = {
 		var timeout = setTimeout(function ()
 		{
 			that.$element.off($.support.transition.end);
-			that.hideModal();
+			that.hideLightbox();
 		}, 500);
 
 		this.$element.one($.support.transition.end, function ()
 		{
 			clearTimeout(timeout);
-			that.hideModal();
+			that.hideLightbox();
 		});
 	},
-	hideModal: function (that)
+	hideLightbox: function (that)
 	{
 		this.$element
 			.hide()
@@ -238,8 +247,9 @@ Lightbox.prototype = {
 	centerImage: function()
 	{
 		var that = this;
-		that.$h = that.$element.height();
-		that.$w = that.$element.width();
+		debugger
+		that.h = that.$element.height();
+		that.w = that.$element.width();
 		var resizedOffs = 0;
 		if(that.options.resizeToFit)
 		{
@@ -264,15 +274,16 @@ Lightbox.prototype = {
 			$(myImg).css('max-width', $(window).width() - sOffs);
 			$(myImg).css('max-height', $(window).height() - sOffs);
 			
-			that.$w = $(myImg).width();
-			that.$h = $(myImg).height();
+			that.w = $(myImg).width();
+			that.h = $(myImg).height();
 		}
 
 		that.$element.css({
 			"position": "fixed",
-			"left": ( $(window).width()  / 2 ) - ( that.$w / 2 ),
-			"top":  ( $(window).height() / 2 ) - ( that.$h / 2 ) - resizedOffs
+			"left": ( $(window).width()  / 2 ) - ( that.w / 2 ),
+			"top":  ( $(window).height() / 2 ) - ( that.h / 2 ) - resizedOffs
 		});
+		that.enforceFocus();
 	}
 };
 
@@ -325,7 +336,12 @@ $(function ()
 		if(img)
 		{
 			originalContent = $target.find('.lightbox-content').html();
-			$target.find('.lightbox-content').empty().html('<img src="'+img+'" border="0" alt="" />');
+			console.log('Image',img);
+			var $imgElem = $('<img />');
+			$imgElem.attr('border','0');
+			$imgElem.attr('src',img);
+			$target.find('.lightbox-content').empty().append($imgElem);
+			console.log('HTML',$target.find('.lightbox-content').html());
 		}
 
 
@@ -335,6 +351,9 @@ $(function ()
 			.one('hide', function ()
 			{
 				$this.focus();
+			})
+			.one('hidden',function ()
+			{
 				if( originalContent )
 				{
 					$target.find('.lightbox-content').empty().html( originalContent );
