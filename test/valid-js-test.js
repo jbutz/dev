@@ -7,7 +7,7 @@ vows.describe('Valid JS').addBatch({
 	'when tested with JSHint': {
 		topic: function ()
 		{
-			var buffer = fs.readFileSync('bootstrap-lightbox.js');
+			var buffer = fs.readFileSync('js/bootstrap-lightbox.js');
 			var data   = buffer.toString();
 			if(data.length <= 0)
 				return false;
