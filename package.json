@@ -9,7 +9,8 @@
 		"url": "git://github.com/jbutz/bootstrap-lightbox.git"
 	},
 	"scripts": {
-		"build": "./build/build.js"
+		"build": "./build/build.js",
+		"test" : "./test/index.js"
 	},
 	"dependencies": {},
 	"devDependencies": {
