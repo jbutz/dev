@@ -116,7 +116,7 @@ module.exports = function(grunt)
 	grunt.loadNpmTasks('grunt-exec');
 
 	// Default task.
-	grunt.registerTask('default', 'qunit lint concat min less copy clean');
+	grunt.registerTask('default', 'qunit lint concat min less copy');
 
 	grunt.registerTask('docs', 'exec:docs_dep exec:build_docs');
 
