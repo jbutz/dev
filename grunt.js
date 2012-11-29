@@ -104,7 +104,7 @@ module.exports = function(grunt)
 		},
 		qunit: {
 			all: [
-				'test/index.html'
+				'test/**.html'
 			]
 		}
 	});
